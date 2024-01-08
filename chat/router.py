@@ -1,5 +1,5 @@
+from channel_box import Channel, ChannelBox
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-
 
 router = APIRouter(
     prefix="/chat",
@@ -8,38 +8,67 @@ router = APIRouter(
 
 
 class ConnectionManager:
-    def __init__(self):
-        self.active_connections: list[WebSocket] = []
+    channels: dict[WebSocket, Channel] = {}
 
-    async def connect(self, websocket: WebSocket):
+    async def on_connect(self, websocket: WebSocket):
+        group_name = websocket.query_params.get(
+            "group_name"
+        )  # group name */ws?group_name=MyChat
+        if group_name:
+            channel = Channel(
+                websocket,
+                expires=60 * 60,
+                encoding="json",
+            )  # define user channel
+            self.channels[websocket] = channel
+            channel = await ChannelBox.channel_add(
+                group_name,
+                channel,
+            )  # add user channel to named group
         await websocket.accept()
-        self.active_connections.append(websocket)
 
-    def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
+    async def on_send(
+        self,
+        data: dict[str, str],
+        group_name: str | None,
+    ):
+        message = data["message"]
+        username = data["username"]
 
-    async def send_personal_message(self, message: str, websocket: WebSocket):
-        await websocket.send_text(message)
-
-    async def broadcast(self, message: str):
-        for connection in self.active_connections:
-            await connection.send_text(message)
+        if message.strip():
+            payload = {
+                "username": username,
+                "message": message,
+            }
+            if group_name:
+                await ChannelBox.group_send(
+                    group_name, payload
+                )  # send to all users channels
 
 
 manager = ConnectionManager()
 
 
 @router.websocket("/ws/{client_id}")
-async def websocket_endpoint(websocket: WebSocket, client_id: int):
-    await manager.connect(websocket)
+async def websocket_endpoint(
+    websocket: WebSocket,
+    client_id: int,
+    group_name: str,
+):
+    await manager.on_connect(websocket)
     try:
         while True:
-            data = await websocket.receive_text()
-            await manager.send_personal_message(
-                f"You wrote: {data}",
-                websocket,
-            )
-            await manager.broadcast(f"Client #{client_id} says: {data}")
+            data = await websocket.receive_json()
+            await manager.on_send(data, group_name)
     except WebSocketDisconnect:
-        manager.disconnect(websocket)
-        await manager.broadcast(f"Client #{client_id} left the chat")
+        await ChannelBox.channel_remove(
+            group_name,
+            manager.channels[websocket],
+        )
+        await ChannelBox.group_send(
+            group_name,
+            {
+                "username": f"user #{client_id}",
+                "message": "left the chat",
+            },
+        )
