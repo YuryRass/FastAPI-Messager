@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from chat.router import router as chat_router
-from .crontab import one_minute_message
+from cron import one_minute_message
 from pages.router import router as page_router
 
 

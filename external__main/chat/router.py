@@ -1,5 +1,6 @@
 from channel_box import Channel, ChannelBox
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from producer.methods import send_message_to_internal_messager
 
 router = APIRouter(
     prefix="/chat",
@@ -58,8 +59,11 @@ async def websocket_endpoint(
     await manager.on_connect(websocket)
     try:
         while True:
-            data = await websocket.receive_json()
+            data: dict = await websocket.receive_json()
+            # отправляем сообщение на сайт
             await manager.on_send(data, group_name)
+            # отправялем сообщение в контур RabbitMQ
+            await send_message_to_internal_messager(data)
     except WebSocketDisconnect:
         await ChannelBox.channel_remove(
             group_name,

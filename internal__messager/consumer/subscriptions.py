@@ -1,6 +1,6 @@
 import aiormq
-from internal__messager.consumer import methods
-from internal__messager.config import settings
+from consumer import methods
+from config import settings
 
 
 async def consumer_subscriptions():
@@ -31,5 +31,12 @@ async def consumer_subscriptions():
         simple_message_with_ack_queue__declared.queue,
         methods.simple_message_with_ack,
         no_ack=False,
+    )
+    chat_message_queue__declared = await channel.queue_declare(
+        f"{settings.UNIQUE_PREFIX}:internal__messager:chat_message",
+        durable=False,
+    )
+    await channel.basic_consume(
+        chat_message_queue__declared.queue, methods.chat_message, no_ack=False
     )
     # https://habr.com/ru/post/150134/
