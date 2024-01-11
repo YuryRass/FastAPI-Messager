@@ -1,6 +1,8 @@
 import json
 from aiormq.abc import DeliveredMessage
 
+from producer import methods as producer_methods
+
 
 async def simple_message(message: DeliveredMessage):
     print(f"simple_message :: body is {message.body!r}")
@@ -23,6 +25,5 @@ async def chat_message(message: DeliveredMessage):
     outcoming_message_dict = {}
     outcoming_message_dict["username"] = "internal_messager"
     outcoming_message_dict["message"] = outcoming_message
-    print(outcoming_message)
-    # await producer_methods.send_message_to_external_main(outcoming_message_dict)
+    await producer_methods.send_message_to_external_main(outcoming_message_dict)
     await message.channel.basic_ack(message.delivery.delivery_tag)
