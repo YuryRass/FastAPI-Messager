@@ -5,7 +5,7 @@ class Settings(BaseSettings):
     AMQP_URI: str
     UNIQUE_PREFIX: str
 
-    model_config = SettingsConfigDict(env_file=".env-external")
+    model_config = SettingsConfigDict(env_file=".env")
 
 
 settings = Settings()
