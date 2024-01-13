@@ -14,27 +14,28 @@ async def simple_message_with_ack(message: DeliveredMessage):
 
 
 async def chat_message(message: DeliveredMessage):
-    incoming_message: dict = json.loads(message.body)
-    incoming_message: str = incoming_message["message"]
+    incoming_message_dict = json.loads(message.body)
+    message_source: str = incoming_message_dict["source"]
+    incoming_message: str = incoming_message_dict["message"]
 
     if (
-        incoming_message.endswith('!pow')
-        and incoming_message["source"] == "external__main"
+        "!pow" in incoming_message
+        and message_source == "external__main"
     ):
-        outcoming_message: dict = {}
-        outcoming_message["username"] = "internal_messager"
-        outcoming_message["message"] = incoming_message
+        outcoming_message_dict: dict = {}
+        outcoming_message_dict["username"] = "internal_messager"
+        outcoming_message_dict["message"] = incoming_message[:-4]
         await producer_methods.send_pow_message_to_internal_worker(
-            outcoming_message
+            outcoming_message_dict
         )
         await message.channel.basic_ack(message.delivery.delivery_tag)
     else:
-        if incoming_message["source"] == "external__main":
+        if message_source == "external__main":
             outcoming_message = incoming_message[::-1]
-        elif incoming_message["source"] == "internal__worker":
+        elif message_source == "internal__worker":
             outcoming_message = incoming_message
-        outcoming_message: dict = {}
-        outcoming_message["username"] = "internal_messager"
-        outcoming_message["message"] = outcoming_message
-        await producer_methods.send_message_to_external_main(outcoming_message)
+        outcoming_message_dict: dict = {}
+        outcoming_message_dict["username"] = "internal_messager"
+        outcoming_message_dict["message"] = outcoming_message
+        await producer_methods.send_message_to_external_main(outcoming_message_dict)
         await message.channel.basic_ack(message.delivery.delivery_tag)
