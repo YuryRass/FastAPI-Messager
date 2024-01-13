@@ -1,10 +1,11 @@
-import os
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from dotenv import load_dotenv
 
-load_dotenv()
+class Settings(BaseSettings):
+    AMQP_URI: str
+    UNIQUE_PREFIX: str
 
-DEBUG = os.getenv("DEBUG") == "1"
-AMQP_URI = os.getenv("AMQP_URI")
-UNIQUE_PREFIX = os.getenv("UNIQUE_PREFIX")
+    model_config = SettingsConfigDict(env_file=".env")
 
+
+settings = Settings()

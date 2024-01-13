@@ -3,12 +3,24 @@ import time
 
 
 class PoW:
+    """Алгоритм майнинга Proof of Work"""
+
     MAX_NONCE = 2**32  # 4 billion
 
-    def __init__(self, message, *args, **kwargs):
+    def __init__(self, message: str) -> None:
         self.message = message
 
-    async def proof_of_work(self, header, difficulty_bits):
+    async def proof_of_work(
+        self,
+        header: str,
+        difficulty_bits: int,
+    ) -> str | tuple:
+        """Доказательство работы
+
+        Args:
+            header (str): заголовок для шифрования
+            difficulty_bits (int): биты сложности
+        """
         # calculate the difficulty target
         target = 2 ** (256 - difficulty_bits)
 
@@ -20,18 +32,18 @@ class PoW:
             if int(hash_result, 16) < target:
                 print((f"Success with nonce {nonce}"))
                 print((f"Hash is {hash_result}"))
-                return (hash_result, nonce)
+                return hash_result, nonce
 
         print((f"Failed after {nonce} (max_nonce) tries"))
         return nonce
 
     async def calculate(self):
+        """Основной расчет алгоритма"""
         nonce = 0
         hash_result = ""
 
         # difficulty from 0 to 31 bits
-        original_max_range = 24
-        test_range = 24
+        test_range = 22
         calculate_start_time = time.time()
         for difficulty_bits in range(test_range):
             difficulty = 2**difficulty_bits
@@ -47,7 +59,7 @@ class PoW:
             new_block = self.message + hash_result
 
             # find a valid nonce for the new block
-            (hash_result, nonce) = await self.proof_of_work(
+            hash_result, nonce = await self.proof_of_work(
                 new_block,
                 difficulty_bits,
             )

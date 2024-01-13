@@ -1,13 +1,14 @@
 import asyncio
-from starlette.applications import Starlette
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
 from consumer.subscriptions import consumer_subscriptions
 
 
-class AmqpHttpServer(Starlette):
-    def __init__(self, *args, **kwargs):
-        loop = asyncio.get_event_loop()
-        loop.create_task(consumer_subscriptions())
-        super().__init__(*args, **kwargs)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    loop = asyncio.get_event_loop()
+    loop.create_task(consumer_subscriptions())
+    yield
 
 
-app = AmqpHttpServer(debug=True)
+app = FastAPI(lifespan=lifespan)

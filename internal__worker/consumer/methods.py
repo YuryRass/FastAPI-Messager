@@ -13,8 +13,11 @@ async def pow_chat_message(message: DeliveredMessage):
 
     outcoming_message_dict = {}
     outcoming_message_dict["username"] = "internal_messager"
-    outcoming_message_dict[
-        "message"
-    ] = f"POW {incoming_message} hash:{hash_result} elapsed time:{calculate_elapsed_time}"
-    await producer_methods.send_message_to_internal_messager(outcoming_message_dict)
+    outcoming_message_dict["message"] = (
+        f"POW {incoming_message} "
+        + f"hash:{hash_result} elapsed time:{calculate_elapsed_time}"
+    )
+    await producer_methods.send_message_to_internal_messager(
+        outcoming_message_dict,
+    )
     await message.channel.basic_ack(message.delivery.delivery_tag)
