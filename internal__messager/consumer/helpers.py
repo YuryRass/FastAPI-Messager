@@ -7,7 +7,7 @@ import aiormq.types
 from config import settings
 
 
-class FibonacciRpcClient:
+class MyRpcClient:
     def __init__(self):
         self.connection = None  # type: aiormq.Connection
         self.channel = None  # type: aiormq.Channel
