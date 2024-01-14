@@ -1,5 +1,5 @@
 import aiormq
-from consumer import methods
+from consumer import handlers
 from config import settings
 
 
@@ -12,6 +12,6 @@ async def consumer_subscriptions():
     )
     await channel.basic_consume(
         chat_message_queue__declared.queue,
-        methods.chat_message,
+        handlers.chat_message,
         no_ack=False,
     )
