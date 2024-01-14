@@ -1,7 +1,7 @@
 import aiormq
 
 
-from consumer import methods
+from consumer import handlers
 from config import settings
 
 
@@ -18,6 +18,6 @@ async def consumer_subscriptions():
     # в самом обработчике по мере выполенения (предпочитаемый вариант)
     await channel.basic_consume(
         pow_chat_message_queue__declared.queue,
-        methods.pow_chat_message,
+        handlers.pow_chat_message,
         no_ack=False,
     )

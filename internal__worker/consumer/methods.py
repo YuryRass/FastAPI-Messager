@@ -1,12 +1,9 @@
-import json
-from aiormq.abc import DeliveredMessage
 from producer import methods as producer_methods
 from consumer import helpers
 
 
-async def pow_chat_message(message: DeliveredMessage):
-    incoming_message_dict = json.loads(message.body)
-    incoming_message = incoming_message_dict["message"]
+async def pow_chat_message(validated_data: dict):
+    incoming_message = validated_data["message"]
     hash_result, calculate_elapsed_time = await helpers.PoW(
         incoming_message
     ).calculate()
@@ -20,4 +17,3 @@ async def pow_chat_message(message: DeliveredMessage):
     await producer_methods.send_message_to_internal_messager(
         outcoming_message_dict,
     )
-    await message.channel.basic_ack(message.delivery.delivery_tag)
