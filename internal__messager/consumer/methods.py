@@ -19,7 +19,8 @@ async def chat_message(message: DeliveredMessage):
     incoming_message: str = incoming_message_dict["message"]
 
     if (
-        "!pow" in incoming_message
+        len(incoming_message) > 4
+        and incoming_message.endswith("!pow")
         and message_source == "external__main"
     ):
         outcoming_message_dict: dict = {}
@@ -37,5 +38,7 @@ async def chat_message(message: DeliveredMessage):
         outcoming_message_dict: dict = {}
         outcoming_message_dict["username"] = "internal_messager"
         outcoming_message_dict["message"] = outcoming_message
-        await producer_methods.send_message_to_external_main(outcoming_message_dict)
+        await producer_methods.send_message_to_external_main(
+            outcoming_message_dict,
+        )
         await message.channel.basic_ack(message.delivery.delivery_tag)
