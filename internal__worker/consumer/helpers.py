@@ -43,7 +43,7 @@ class PoW:
         hash_result = ""
 
         # difficulty from 0 to 31 bits
-        test_range = 22
+        test_range = 24
         calculate_start_time = time.time()
         for difficulty_bits in range(test_range):
             difficulty = 2**difficulty_bits
