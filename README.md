@@ -34,3 +34,34 @@
 Разница между двумя значениями `!pow` и `!rpc` заключается в том, что при использовании `!rpc` применяется паттерн [Remote Procedure Called](https://github.com/mosquito/aiormq?tab=readme-ov-file#remote-procedure-call-rpc) поверх брокера сообщений RabbitMQ
 
 > Зависимости системы: FastAPI channel-box, aiormq, pydantic, pydantic-settings
+
+# Стартовая конфигурация системы
+Перед запуском приложения убедитесь в наличии в
+директории с проектом файла ".env", хранящего следующие настройки:
+
+* **RABBITMQ_DEFAULT_USER** = rabbitmq
+  > имя пользователя в RabbitMQ
+* **RABBITMQ_DEFAULT_PASS** = rabbitmq
+  > пароль в RabbitMQ
+* **AMQP_URI** = amqp://rabbitmq:rabbitmq@rabbitmq/
+  > полный адрес для подключения к брокеру
+* **UNIQUE_PREFIX** = yurii
+  > уникальный префикс для именования очередей
+
+# Установка и запуск
+
+Скопируйте репозиторий, используя следующую команду:
+
+`git clone https://github.com/YuryRass/FastAPI-Messager.git`
+
+После чего перейдите в каталог с проектом:
+
+`cd FastAPI-Messager`
+
+Для создания и запуска микросервисной системы выполните команду:
+
+`docker-compose up --build`
+
+Для запуска системы в фонов режиме добавьте флаг `-d`
+
+`docker-compose up --build -d`
